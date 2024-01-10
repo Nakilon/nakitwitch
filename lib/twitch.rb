@@ -32,6 +32,9 @@ module Twitch
       retry
     end
   end
+  def self.login_to_id login
+    request("users", "login" => login)["data"][0]["id"]
+  end
   SCHEMA = {
     "videos" => { hash: {
       "data" => [[ { hash_req: {
