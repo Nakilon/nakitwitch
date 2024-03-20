@@ -1,11 +1,17 @@
 require "nakischema"
 
 # 1. create app: https://dev.twitch.tv/console/apps/create
-#    set OAuth Redirect URL: http://localhost:8000
-# 2. find client_id and create client_secret on apps properties page
-# 3. obtain auth code by opening in web browser
-#    example: https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=<client_id>&redirect_uri=http://localhost:8000&scope=chat:read+chat:edit+moderator:read:followers
-# 4. get tokens: $ curl https://id.twitch.tv/oauth2/token -d "client_id=$(cat twitch_client_id.secret.txt)&client_secret=$(cat twitch_client_secret.secret.txt)&grant_type=authorization_code&code=<auth_code>&redirect_uri=http://localhost:8000" >twitch.secret.json
+# 2. find client_id and create client_secret on apps properties page, save both
+# 3. set OAuth Redirect URL: http://localhost:8000
+# 4. obtain <auth code> by opening in web browser (edit or remove scopes as needed):
+#    https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=<client_id>&redirect_uri=http://localhost:8000&scope=chat:read+chat:edit+moderator:read:followers
+# 5. get tokens:
+#    $ curl https://id.twitch.tv/oauth2/token -d "client_id=$( \
+#        cat twitch_client_id.secret.txt                       \
+#      )&client_secret=$(                                      \
+#        cat twitch_client_secret.secret.txt                   \
+#      )&grant_type=authorization_code&code=<auth code>&redirect_uri=http://localhost:8000" \
+#        >twitch.secret.json
 module Twitch
   Error = ::Class.new ::RuntimeError
   def self.configure client_id, client_secret, tokens_filename
