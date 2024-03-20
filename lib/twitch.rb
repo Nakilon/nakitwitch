@@ -1,3 +1,5 @@
+require "nakischema"
+
 # 1. create app: https://dev.twitch.tv/console/apps/create
 #    set OAuth Redirect URL: http://localhost:8000
 # 2. find client_id and create client_secret on apps properties page
@@ -19,8 +21,9 @@ module Twitch
       refresh_token: ::JSON.load(::File.read(@tokens_filename)).fetch("refresh_token")
     } )
   end
+  require "nakischema"
   def self.request mtd, retry_delay = 5, **form
-    ::JSON.load begin
+    ::JSON.load( begin
       ::NetHTTPUtils.request_data "https://api.twitch.tv/helix/#{mtd}", form: form, header: {
         "Authorization" => "Bearer #{::JSON.load(::File.read(@tokens_filename)).fetch "access_token"}",
         "client-id" => @client_id || raise(Error, "missing configuration (#{::Module.nesting}.configure)")
@@ -30,6 +33,8 @@ module Twitch
       refresh
       sleep retry_delay
       retry
+    end ).tap do |_|
+      ::Nakischema.validate _, SCHEMA[mtd] if SCHEMA.key? mtd
     end
   end
   def self.login_to_id login

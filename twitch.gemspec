@@ -9,6 +9,7 @@ Gem::Specification.new do |spec|
   spec.metadata     = {"source_code_uri" => "https://github.com/nakilon/twitch"}
 
   spec.add_dependency "nethttputils"
+  spec.add_dependency "nakischema"
 
   spec.files        = %w{ LICENSE twitch.gemspec lib/twitch.rb }
 end
