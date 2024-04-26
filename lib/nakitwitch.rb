@@ -1,7 +1,5 @@
-require "nakischema"
-
 # 1. create app: https://dev.twitch.tv/console/apps/create
-# 2. find client_id and create client_secret on apps properties page, save both
+# 2. find <client_id> and create client_secret on apps properties page, save both
 # 3. set OAuth Redirect URL: http://localhost:8000
 # 4. obtain <auth code> by opening in web browser (edit or remove scopes as needed):
 #    https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=<client_id>&redirect_uri=http://localhost:8000&scope=chat:read+chat:edit+moderator:read:followers
@@ -12,6 +10,9 @@ require "nakischema"
 #        cat twitch_client_secret.secret.txt                   \
 #      )&grant_type=authorization_code&code=<auth code>&redirect_uri=http://localhost:8000" \
 #        >twitch.secret.json
+
+require "nakischema"
+
 module Twitch
   Error = ::Class.new ::RuntimeError
   def self.configure client_id, client_secret, tokens_filename
