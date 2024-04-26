@@ -15,6 +15,13 @@ require "nakischema"
 
 module Twitch
   Error = ::Class.new ::RuntimeError
+
+  def self.banword str
+    str.
+      gsub(/н(ег|иге)р/, "<censored>").
+      gsub(/п[еи]д[ао]рас/, "<censored>")
+  end
+
   def self.configure client_id, client_secret, tokens_filename
     @client_id = client_id
     @client_secret = client_secret
@@ -28,25 +35,7 @@ module Twitch
       refresh_token: ::JSON.load(::File.read(@tokens_filename)).fetch("refresh_token")
     } )
   end
-  require "nakischema"
-  def self.request mtd, retry_delay = 5, **form
-    ::JSON.load( begin
-      ::NetHTTPUtils.request_data "https://api.twitch.tv/helix/#{mtd}", form: form, header: {
-        "Authorization" => "Bearer #{::JSON.load(::File.read(@tokens_filename)).fetch "access_token"}",
-        "client-id" => @client_id || raise(Error, "missing configuration (#{::Module.nesting}.configure)")
-      }
-    rescue ::NetHTTPUtils::Error
-      fail unless '{"error":"Unauthorized","status":401,"message":"Invalid OAuth token"}' == $!.body
-      refresh
-      sleep retry_delay
-      retry
-    end ).tap do |_|
-      ::Nakischema.validate _, SCHEMA[mtd] if SCHEMA.key? mtd
-    end
-  end
-  def self.login_to_id login
-    request("users", "login" => login)["data"][0]["id"]
-  end
+
   SCHEMA = {
     "videos" => { hash: {
       "data" => [[ { hash_req: {
@@ -65,4 +54,25 @@ module Twitch
       "pagination" => { hash: {} },
     } },
   }
+  require "nakischema"
+  def self.request mtd, retry_delay = 5, **form
+    ::JSON.load( begin
+      ::NetHTTPUtils.request_data "https://api.twitch.tv/helix/#{mtd}", form: form, header: {
+        "Authorization" => "Bearer #{::JSON.load(::File.read(@tokens_filename)).fetch "access_token"}",
+        "client-id" => @client_id || raise(Error, "missing configuration (#{::Module.nesting}.configure)")
+      }
+    rescue ::NetHTTPUtils::Error
+      fail unless '{"error":"Unauthorized","status":401,"message":"Invalid OAuth token"}' == $!.body
+      refresh
+      sleep retry_delay
+      retry
+    end ).tap do |_|
+      ::Nakischema.validate _, SCHEMA[mtd] if SCHEMA.key? mtd
+    end
+  end
+
+  def self.login_to_id login
+    request("users", "login" => login)["data"][0]["id"]
+  end
+
 end
