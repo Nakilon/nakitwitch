@@ -38,14 +38,17 @@ module Twitch
 
   SCHEMA = {
     "videos" => { hash: {
-      "data" => [[ { hash_req: {
+      "data" => {
+        size: 0..1,
+        each: { hash_req: {
         "user_id" => /\A[0-9]+\z/,
         "user_login" => /\A\S+\z/,
         "user_name" => /\S/,
         "title" => /\S/,
         "published_at" => /\A202\d-(0[1-9]|1[0-2])-([012][0-9]|3[01])T[012][0-9]:[0-5][0-9]:[0-5][0-9]Z\z/,
         "view_count" => 0..1000000000,
-      } } ]],
+        } },
+      },
       "pagination" => { hash: {} }
     } },
     "channels/followers" => { hash: {
@@ -54,6 +57,8 @@ module Twitch
       "pagination" => { hash: {} },
     } },
   }
+  require "nethttputils"
+  require "json"
   require "nakischema"
   def self.request mtd, retry_delay = 5, **form
     ::JSON.load( begin
